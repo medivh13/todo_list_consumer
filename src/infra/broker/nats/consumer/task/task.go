@@ -6,7 +6,7 @@ import (
 
 	dto "todo_list_consumer/src/app/dto/task"
 	natsBroker "todo_list_consumer/src/infra/broker/nats"
-	booksConst "todo_list_consumer/src/infra/constants"
+	taskConst "todo_list_consumer/src/infra/constants"
 
 	useCase "todo_list_consumer/src/app/usecases/task"
 
@@ -30,11 +30,11 @@ type TaskWorkerImpl struct {
 func NewTaskWorker(Nats *natsBroker.Nats, useCase useCase.TaskUseCase) NotifTaskInterface {
 	taskWorkerImpl := &TaskWorkerImpl{
 		nats:    Nats,
-		queues:  booksConst.TASK_QUEUE,
+		queues:  taskConst.TASK_QUEUE,
 		UseCase: useCase,
 		subjects: map[string]func([]byte){
 			// Handler untuk subject ADD_TASK
-			booksConst.ADD_TASK: func(data []byte) {
+			taskConst.ADD_TASK: func(data []byte) {
 				taskDTO := dto.CreateTaskReqDTO{}
 				if err := json.Unmarshal(data, &taskDTO); err != nil {
 					log.Printf("Error parsing ADDTASK payload: %+v", err)
@@ -45,7 +45,7 @@ func NewTaskWorker(Nats *natsBroker.Nats, useCase useCase.TaskUseCase) NotifTask
 				}
 			},
 			// Handler untuk subject FINISH_TASK
-			booksConst.FINISH_TASK: func(data []byte) {
+			taskConst.FINISH_TASK: func(data []byte) {
 				taskDTO := dto.FinishtTaskReqDTO{}
 				if err := json.Unmarshal(data, &taskDTO); err != nil {
 					log.Printf("Error parsing FINISH_TASK payload: %+v", err)
