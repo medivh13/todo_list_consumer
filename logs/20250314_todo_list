@@ -1,0 +1,7 @@
+{"level":"fatal","msg":"Failed to initialize Postgres: dial tcp 127.0.0.1:5432: connect: connection refused","time":"2025-03-14T16:11:49+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T16:12:03+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T16:12:18+07:00"}
+{"level":"info","msg":"listen on:8080","time":"2025-03-14T16:12:18+07:00"}
+{"level":"warning","msg":"got signal: 0x140001983f0, shutting down server ...","time":"2025-03-14T16:12:42+07:00"}
+{"level":"info","msg":"server exiting","time":"2025-03-14T16:12:42+07:00"}
+{"level":"info","msg":"sql database postgres successfuly closed.","time":"2025-03-14T16:12:42+07:00"}

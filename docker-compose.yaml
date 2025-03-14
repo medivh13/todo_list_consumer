@@ -1,0 +1,26 @@
+version: "3.8"  # Menentukan versi Docker Compose
+
+services:
+  redis:
+    image: redis:latest  # Menggunakan image Redis terbaru
+    container_name: redis-ttl_todo_list_container  # Nama container Redis
+    restart: always  # Restart otomatis jika terjadi error
+    command: ["redis-server", "--notify-keyspace-events", "Ex"]  # Mengaktifkan event notification
+    ports:
+      - "6379:6379"  # Mengekspos Redis di port 6379
+    volumes:
+      - redis_data:/data  # Menyimpan data Redis agar tetap ada setelah container dihentikan
+
+  nats:
+    image: nats:latest  # Menggunakan image NATS terbaru
+    container_name: nats-server  # Nama container NATS
+    restart: always  # Restart otomatis jika terjadi error
+    ports:
+      - "4222:4222"  # Port utama NATS untuk komunikasi
+      - "8222:8222"  # Port untuk UI monitoring
+    command: ["--js"]  # Mengaktifkan fitur JetStream di NATS
+
+volumes:
+  redis_data:  # Volume untuk menyimpan data Redis
+
+# docker-compose up -d
