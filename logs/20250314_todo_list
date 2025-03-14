@@ -5,3 +5,27 @@
 {"level":"warning","msg":"got signal: 0x140001983f0, shutting down server ...","time":"2025-03-14T16:12:42+07:00"}
 {"level":"info","msg":"server exiting","time":"2025-03-14T16:12:42+07:00"}
 {"level":"info","msg":"sql database postgres successfuly closed.","time":"2025-03-14T16:12:42+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T17:31:41+07:00"}
+{"level":"fatal","msg":"NATS is not connected. Exiting...","time":"2025-03-14T17:31:41+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T17:32:12+07:00"}
+{"level":"fatal","msg":"NATS is not connected. Exiting...","time":"2025-03-14T17:32:12+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T17:32:49+07:00"}
+{"level":"info","msg":"Task worker successfully started.","time":"2025-03-14T17:32:49+07:00"}
+{"level":"info","msg":"listen on:8080","time":"2025-03-14T17:32:49+07:00"}
+{"level":"warning","msg":"got signal: 0x140002201c0, shutting down server ...","time":"2025-03-14T17:34:08+07:00"}
+{"level":"info","msg":"server exiting","time":"2025-03-14T17:34:08+07:00"}
+{"level":"info","msg":"sql database postgres successfuly closed.","time":"2025-03-14T17:34:08+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T17:34:13+07:00"}
+{"level":"warning","msg":"NATS is disabled in configuration","time":"2025-03-14T17:34:13+07:00"}
+{"level":"info","msg":"Task worker successfully started.","time":"2025-03-14T17:34:13+07:00"}
+{"level":"info","msg":"listen on:8080","time":"2025-03-14T17:34:13+07:00"}
+{"level":"warning","msg":"got signal: 0x140000b81c0, shutting down server ...","time":"2025-03-14T17:36:28+07:00"}
+{"level":"info","msg":"server exiting","time":"2025-03-14T17:36:28+07:00"}
+{"level":"info","msg":"sql database postgres successfuly closed.","time":"2025-03-14T17:36:28+07:00"}
+{"level":"info","msg":"sql database connection postgres success","time":"2025-03-14T17:36:37+07:00"}
+{"level":"info","msg":"Connected to NATS at: 127.0.0.1:4222","time":"2025-03-14T17:36:37+07:00"}
+{"level":"info","msg":"Task worker successfully started.","time":"2025-03-14T17:36:37+07:00"}
+{"level":"info","msg":"listen on:8080","time":"2025-03-14T17:36:37+07:00"}
+{"level":"warning","msg":"got signal: 0x140000dc230, shutting down server ...","time":"2025-03-14T17:38:24+07:00"}
+{"level":"info","msg":"server exiting","time":"2025-03-14T17:38:24+07:00"}
+{"level":"info","msg":"sql database postgres successfuly closed.","time":"2025-03-14T17:38:24+07:00"}

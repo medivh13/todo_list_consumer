@@ -1,10 +1,8 @@
 package nats
 
 import (
-	"log"
-	"todo_list_consumer/src/infra/config"
-
 	"time"
+	"todo_list_consumer/src/infra/config"
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
@@ -18,26 +16,27 @@ type Nats struct {
 
 // NewNats membuat koneksi ke NATS berdasarkan konfigurasi yang diberikan
 func NewNats(conf config.NatsConf, logger *logrus.Logger) *Nats {
-	var Nats = new(Nats) // Membuat instance struct Nats
+	natsInstance := &Nats{} // Membuat instance struct Nats
 
 	// Mengecek apakah NATS diaktifkan berdasarkan konfigurasi
-	if conf.NatsStatus == "1" {
-		Nats.Status = true
+	if conf.NatsStatus != "1" {
+		logger.Warn("NATS is disabled in configuration")
+		return natsInstance
 	}
 
-	// Jika NATS diaktifkan, maka buat koneksi ke NATS
-	if Nats.Status {
-		timeout := time.Duration(conf.NatsTimeOut) * time.Second // Konversi timeout dari konfigurasi ke time.Duration
-		var err error
+	// Konversi timeout dari konfigurasi ke time.Duration
+	timeout := time.Duration(conf.NatsTimeOut) * time.Second
 
-		// Membuka koneksi ke NATS dengan timeout yang ditentukan
-		Nats.Conn, err = nats.Connect(conf.NatsHost, nats.Timeout(timeout))
-		if err != nil {
-			logger.Printf("error connecting NATS. %s\n", err.Error()) // Logging jika terjadi error
-		}
-
-		log.Println("connected to:", conf.NatsHost) // Logging jika berhasil terkoneksi
+	// Membuka koneksi ke NATS dengan timeout yang ditentukan
+	conn, err := nats.Connect(conf.NatsHost, nats.Timeout(timeout))
+	if err != nil {
+		logger.Errorf("Error connecting to NATS: %s", err)
+		return natsInstance
 	}
 
-	return Nats
+	natsInstance.Conn = conn
+	natsInstance.Status = true
+	logger.Infof("Connected to NATS at: %s", conf.NatsHost)
+
+	return natsInstance
 }

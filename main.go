@@ -66,7 +66,10 @@ func main() {
 		TaskUC: taskUC.NewTaskUseCase(taskRepository),
 	}
 
-	taskNats.NewTaskWorker(Nats, allUC.TaskUC)
+	taskWorker := taskNats.NewTaskWorker(Nats, allUC.TaskUC)
+	_ = taskWorker
+
+	logger.Info("Task worker successfully started.")
 
 	httpServer, err := rest.New(
 		conf.Http,

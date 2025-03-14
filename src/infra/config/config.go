@@ -126,6 +126,7 @@ func Make() Config {
 		Http:  http,
 		Log:   log,
 		SqlDb: sqldb,
+		Nats:  nats,
 	}
 
 	return config
