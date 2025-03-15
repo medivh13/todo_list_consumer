@@ -10,16 +10,19 @@ import (
 // TaskRepository mendefinisikan metode yang harus diimplementasikan
 
 type TaskRepository interface {
-	AddTask(req *dto.CreateTaskReqDTO) error
+	AddTask(req *dto.CreateTaskReqDTO) (*dto.CreateTaskRespDTO, error)
 	FinishTask(req *dto.FinishtTaskReqDTO) error
+	ExpireTask(req *dto.ExpireTaskReqDTO) error
 }
 
 // Query SQL untuk berbagai operasi database
 const (
 	AddTask = `INSERT INTO public.tasks (user_id, title, expires_at)
-		VALUES ($1, $2, $3)`
+		VALUES ($1, $2, $3) Returning id`
 
 	FinishTask = `UPDATE public.tasks SET status = 'done' WHERE id = $1;`
+
+	ExpireTask = `UPDATE public.tasks SET status = 'expired' WHERE id = $1;`
 )
 
 // Struct untuk menyimpan statement yang telah diprepare
@@ -28,6 +31,7 @@ var statement PreparedStatement
 type PreparedStatement struct {
 	addTask    *sqlx.Stmt
 	finishTask *sqlx.Stmt
+	expireTask *sqlx.Stmt
 }
 
 type taskRepo struct {
@@ -58,23 +62,37 @@ func InitPreparedStatement(m *taskRepo) {
 	statement = PreparedStatement{
 		addTask:    m.Preparex(AddTask),
 		finishTask: m.Preparex(FinishTask),
+		expireTask: m.Preparex(ExpireTask),
 	}
 }
 
 // RegisterUser menangani proses registrasi pengguna baru
-func (repo *taskRepo) AddTask(req *dto.CreateTaskReqDTO) error {
-	_, err := statement.addTask.Exec(req.UserID, req.Title, req.ExpiresAt)
+func (repo *taskRepo) AddTask(req *dto.CreateTaskReqDTO) (*dto.CreateTaskRespDTO, error) {
+
+	var resp dto.CreateTaskRespDTO
+	err := statement.addTask.QueryRow(req.UserID, req.Title, req.ExpiresAt).Scan(&resp.ID)
 
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
-	return nil
+	return &resp, nil
 }
 
 // SignIn menangani autentikasi user berdasarkan email dan password
 func (repo *taskRepo) FinishTask(req *dto.FinishtTaskReqDTO) error {
 	_, err := statement.finishTask.Exec(req.ID)
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (repo *taskRepo) ExpireTask(req *dto.ExpireTaskReqDTO) error {
+	_, err := statement.expireTask.Exec(req.ID)
 
 	if err != nil {
 		log.Println(err)

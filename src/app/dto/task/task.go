@@ -13,3 +13,11 @@ type CreateTaskReqDTO struct {
 type FinishtTaskReqDTO struct {
 	ID int64 `json:"id"`
 }
+
+type ExpireTaskReqDTO struct {
+	ID int64 `json:"id"`
+}
+
+type CreateTaskRespDTO struct {
+	ID int64
+}

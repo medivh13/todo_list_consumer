@@ -19,8 +19,12 @@ import (
 	"todo_list_consumer/src/infra/broker/nats"
 	taskNats "todo_list_consumer/src/infra/broker/nats/consumer/task"
 
+	scheduler "todo_list_consumer/src/infra/persistence/redis/scheduler"
+
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/sirupsen/logrus"
+
+	"todo_list_consumer/src/infra/persistence/redis"
 )
 
 func main() {
@@ -59,17 +63,29 @@ func main() {
 		}
 	}(logger, postgresdb.Conn.DB, postgresdb.Conn.DriverName())
 
+	// Initialize Redis
+	redisClient, err := redis.NewRedisClient(conf.Redis, logger)
+	if err != nil {
+		logger.Fatalf("Failed to initialize Redis: %s", err)
+	}
 	taskRepository := taskRepo.NewTaskRepository(postgresdb.Conn)
+	redisServe := scheduler.NewBookingSchedulerService(redisClient, taskRepository)
 	Nats := nats.NewNats(conf.Nats, logger)
 
 	allUC := usecases.AllUseCases{
-		TaskUC: taskUC.NewTaskUseCase(taskRepository),
+		TaskUC: taskUC.NewTaskUseCase(taskRepository, redisServe),
 	}
 
 	taskWorker := taskNats.NewTaskWorker(Nats, allUC.TaskUC)
 	_ = taskWorker
 
 	logger.Info("Task worker successfully started.")
+
+	// Start Redis Worker in a Goroutine
+	go func() {
+		logger.Println("Starting Redis Worker...")
+		redisServe.StartWorker()
+	}()
 
 	httpServer, err := rest.New(
 		conf.Http,

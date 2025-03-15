@@ -41,6 +41,15 @@ type NatsConf struct {
 	NatsTimeOut int
 }
 
+type RedisConf struct {
+	Host         string // Alamat host Redis
+	Port         string // Port Redis
+	PoolSize     int    // Maksimum jumlah koneksi dalam pool
+	MinIdleConns int    // Minimum koneksi idle yang dipertahankan
+	IdleTimeout  int    // Waktu sebelum koneksi idle ditutup
+
+}
+
 // Config ...
 type Config struct {
 	App   AppConf
@@ -48,6 +57,7 @@ type Config struct {
 	Log   LogConf
 	SqlDb SqlDbConf
 	Nats  NatsConf
+	Redis RedisConf
 }
 
 // NewConfig ...
@@ -95,6 +105,26 @@ func Make() Config {
 	natsTimeOut, err := strconv.Atoi(os.Getenv("NATS_TIMEOUT"))
 	if err == nil {
 		nats.NatsTimeOut = natsTimeOut
+	}
+
+	redis := RedisConf{
+		Host: os.Getenv("REDIS_HOST"),
+		Port: os.Getenv("REDIS_PORT"),
+	}
+
+	redisPoolSize, err := strconv.Atoi(os.Getenv("REDIS_POOL_SIZE"))
+	if err == nil {
+		redis.PoolSize = redisPoolSize
+	}
+
+	redisMinIdleConns, err := strconv.Atoi(os.Getenv("REDIS_MIN_IDLE_CON"))
+	if err == nil {
+		redis.MinIdleConns = redisMinIdleConns
+	}
+
+	redisIdleTimeout, err := strconv.Atoi(os.Getenv("REDIS_IDLE_TIME_OUT_MINUTE"))
+	if err == nil {
+		redis.IdleTimeout = redisIdleTimeout
 	}
 
 	http := HttpConf{
