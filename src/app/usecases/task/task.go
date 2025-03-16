@@ -34,7 +34,7 @@ func (uc *taskUseCase) AddTask(req *dto.CreateTaskReqDTO) error {
 	}
 
 	// Jadwalkan pembatalan otomatis jika tidak dibayar dalam sekian waktu
-	err = uc.Scheduler.ScheduleBookingCancellation(resp.ID, req.ExpiresAt)
+	err = uc.Scheduler.ScheduleTaskCancellation(resp.ID, req.ExpiresAt)
 	if err != nil {
 		log.Println("Gagal menjadwalkan pembatalan task:", err)
 	}

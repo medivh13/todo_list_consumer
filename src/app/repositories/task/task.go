@@ -22,7 +22,7 @@ const (
 
 	FinishTask = `UPDATE public.tasks SET status = 'done' WHERE id = $1;`
 
-	ExpireTask = `UPDATE public.tasks SET status = 'expired' WHERE id = $1;`
+	ExpireTask = `UPDATE public.tasks SET status = 'expired' WHERE id = $1 AND status='pending';`
 )
 
 // Struct untuk menyimpan statement yang telah diprepare

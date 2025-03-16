@@ -15,7 +15,7 @@ import (
 
 const RedisExpiredEvent = "__keyevent@*__:expired"
 
-// Event __keyevent@0__:expired adalah nama khusus yang digunakan oleh Redis untuk keyspace notifications.
+// Event __keyevent@*__:expired adalah nama khusus yang digunakan oleh Redis untuk keyspace notifications.
 // Ini adalah bagian dari mekanisme bawaan Redis untuk memberi tahu sistem lain saat suatu kunci (key)
 // di Redis telah kedaluwarsa (expired).
 
@@ -36,7 +36,7 @@ const RedisExpiredEvent = "__keyevent@*__:expired"
 
 // Interface untuk scheduler booking
 type SchedulerInterface interface {
-	ScheduleBookingCancellation(taskID int64, expiresAt time.Time) error
+	ScheduleTaskCancellation(taskID int64, expiresAt time.Time) error
 	StartWorker() // Memulai worker untuk mendengarkan event Redis
 }
 
@@ -54,7 +54,7 @@ func NewBookingSchedulerService(redisClient *redis.Client, r repo.TaskRepository
 	}
 }
 
-func (s *bookingSchedulerService) ScheduleBookingCancellation(taskID int64, expiresAt time.Time) error {
+func (s *bookingSchedulerService) ScheduleTaskCancellation(taskID int64, expiresAt time.Time) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("task:%d:expire", taskID) // Format key unik untuk Redis
 
