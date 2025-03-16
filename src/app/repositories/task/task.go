@@ -1,6 +1,7 @@
 package task
 
 import (
+	"errors"
 	"log"
 	dto "todo_list_consumer/src/app/dto/task"
 
@@ -92,11 +93,15 @@ func (repo *taskRepo) FinishTask(req *dto.FinishtTaskReqDTO) error {
 }
 
 func (repo *taskRepo) ExpireTask(req *dto.ExpireTaskReqDTO) error {
-	_, err := statement.expireTask.Exec(req.ID)
-
+	result, err := statement.expireTask.Exec(req.ID)
+	affected, _ := result.RowsAffected()
 	if err != nil {
 		log.Println(err)
 		return err
+	}
+
+	if affected == 0 {
+		return errors.New("no rows affected")
 	}
 
 	return nil

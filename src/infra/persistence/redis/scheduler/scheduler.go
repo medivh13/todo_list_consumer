@@ -25,7 +25,7 @@ const RedisExpiredEvent = "__keyevent@*__:expired"
 // __keyevent@0__:
 // keyevent → Menandakan bahwa ini adalah event terkait perubahan pada suatu key.
 
-// @0 → Menunjukkan bahwa event ini terjadi di database Redis dengan indeks 0
+// @* → Menunjukkan bahwa event ini terjadi di database Redis dengan indeks *
 // (karena Redis bisa memiliki beberapa database, default-nya adalah 0)
 
 // expired:
@@ -110,7 +110,7 @@ func (s *bookingSchedulerService) StartWorker() {
 		if err != nil {
 			log.Println("Gagal membatalkan task:", err)
 		} else {
-			log.Printf("Task ID %d berhasil dibatalkan:", &data.ID)
+			log.Printf("Task ID %d berhasil dibatalkan", data.ID)
 		}
 	}
 }
