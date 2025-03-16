@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const RedisExpiredEvent = "__keyevent@0__:expired"
+const RedisExpiredEvent = "__keyevent@*__:expired"
 
 // Event __keyevent@0__:expired adalah nama khusus yang digunakan oleh Redis untuk keyspace notifications.
 // Ini adalah bagian dari mekanisme bawaan Redis untuk memberi tahu sistem lain saat suatu kunci (key)
@@ -35,7 +36,7 @@ const RedisExpiredEvent = "__keyevent@0__:expired"
 
 // Interface untuk scheduler booking
 type SchedulerInterface interface {
-	ScheduleBookingCancellation(taskID int64) error
+	ScheduleBookingCancellation(taskID int64, expiresAt time.Time) error
 	StartWorker() // Memulai worker untuk mendengarkan event Redis
 }
 
@@ -53,25 +54,38 @@ func NewBookingSchedulerService(redisClient *redis.Client, r repo.TaskRepository
 	}
 }
 
-func (s *bookingSchedulerService) ScheduleBookingCancellation(taskID int64) error {
+func (s *bookingSchedulerService) ScheduleBookingCancellation(taskID int64, expiresAt time.Time) error {
 	ctx := context.Background()
-	key := fmt.Sprintf("task:%d:cancel", taskID) // Format key unik untuk Redis
+	key := fmt.Sprintf("task:%d:expire", taskID) // Format key unik untuk Redis
+
+	// Gunakan Asia/Jakarta jika waktu tidak memiliki zona waktu
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	expiresAt = time.Date(expiresAt.Year(), expiresAt.Month(), expiresAt.Day(),
+		expiresAt.Hour(), expiresAt.Minute(), expiresAt.Second(), expiresAt.Nanosecond(), loc)
+
+	expiresAt = expiresAt.UTC() // Paksa expiresAt ke UTC
+
+	ttl := time.Until(expiresAt)
+	if ttl <= 0 {
+		log.Println("Waktu kedaluwarsa sudah lewat, tidak bisa menjadwalkan pembatalan.")
+		return errors.New("expiration sudah lampau")
+	}
 
 	// Menyimpan key di Redis dengan TTL sekian waktu
-	err := s.redisClient.SetEX(ctx, key, taskID, 1*time.Minute).Err()
+	err := s.redisClient.SetEX(ctx, key, taskID, ttl).Err()
 	if err != nil {
 		log.Println("Gagal menjadwalkan pembatalan task:", err)
 		return err
 	}
 
-	log.Printf("Task ID %d dijadwalkan untuk dibatalkan", taskID)
+	log.Printf("Task ID %d dijadwalkan untuk dibatalkan dalam %.2f menit", taskID, ttl.Minutes())
 	return nil
 }
 
 // Worker yang berjalan terus-menerus untuk mendengarkan event expiration dari Redis
 func (s *bookingSchedulerService) StartWorker() {
 	ctx := context.Background()
-	pubsub := s.redisClient.Subscribe(ctx, RedisExpiredEvent) // Subscribe ke event Redis expiration
+	pubsub := s.redisClient.PSubscribe(ctx, RedisExpiredEvent) // Subscribe ke event Redis expiration
 
 	log.Println("Worker Redis berjalan... Mendengarkan event expired")
 
@@ -96,7 +110,7 @@ func (s *bookingSchedulerService) StartWorker() {
 		if err != nil {
 			log.Println("Gagal membatalkan task:", err)
 		} else {
-			log.Println("Task berhasil dibatalkan:", data.ID)
+			log.Printf("Task ID %d berhasil dibatalkan:", &data.ID)
 		}
 	}
 }
